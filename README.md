@@ -41,7 +41,7 @@ route: /api/v1/:model/:id
 ![Bearer Auth UML Diagram](./public/images/401-class-08-lab.png)
 
 ## PR link
-[PR link Class 07](https://github.com/cleecoloma/auth-api/pull/1)
+[PR link Class 08](https://github.com/cleecoloma/auth-api/pull/1)
 
 ## Contributors
 > Chester Lee Coloma
