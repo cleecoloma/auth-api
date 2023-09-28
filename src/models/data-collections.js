@@ -33,7 +33,7 @@ class DataCollection {
 
   async update(id, data) {
     try {
-      let record = this.model.findOne({ where: { id } });
+      let record = await this.model.findOne({ where: { id } });
       await record.update(data);
       return record;
     } catch (err) {

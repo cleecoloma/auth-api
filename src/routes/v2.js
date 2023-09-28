@@ -1,48 +1,55 @@
 'use strict';
 
 const express = require('express');
-const authRouter = express.Router();
+const dataModules = require('../models');
+const bearer = require('../../src/auth/middleware/bearer.js');
+const acl = require('../../src/auth/middleware/acl.js');
+const router = express.Router();
 
-const { users } = require('../models');
-const basicAuth = require('../../src/auth/middleware/basic.js');
-const bearerAuth = require('../../src/auth/middleware/bearer.js');
-const permissions = require('../../src/auth/middleware/acl.js');
-
-authRouter.post('/signup', async (req, res, next) => {
-  try {
-    let userRecord = await users.create(req.body);
-    const output = {
-      user: userRecord,
-      token: userRecord.token,
-    };
-    res.status(201).json(output);
-    console.log(output);
-  } catch (e) {
-    next(e.message);
+router.param('model', (req, res, next) => {
+  const modelName = req.params.model;
+  if (dataModules[modelName]) {
+    req.model = dataModules[modelName];
+    next();
+  } else {
+    next('Invalid Model');
   }
 });
 
-authRouter.post('/signin', basicAuth, (req, res, next) => {
-  const user = {
-    user: req.user,
-    token: req.user.token,
-  };
-  res.status(200).json(user);
-});
+router.get('/:model', bearer, acl('read'), handleGetAll);
+router.get('/:model/:id', bearer, acl('read'), handleGetOne);
+router.post('/:model', bearer, acl('read'), handleCreate);
+router.put('/:model/:id', bearer, acl('read'), handleUpdate);
+router.delete('/:model/:id', bearer, acl('read'), handleDelete);
 
-authRouter.get(
-  '/users',
-  bearerAuth,
-  permissions('delete'),
-  async (req, res, next) => {
-    const userRecords = await users.findAll({});
-    const list = userRecords.map((user) => user.username);
-    res.status(200).json(list);
-  }
-);
+async function handleGetAll(req, res) {
+  let allRecords = await req.model.get();
+  res.status(200).json(allRecords);
+}
 
-authRouter.get('/secret', bearerAuth, async (req, res, next) => {
-  res.status(200).send('Welcome to the secret area');
-});
+async function handleGetOne(req, res) {
+  const id = req.params.id;
+  let theRecord = await req.model.get(id);
+  res.status(200).json(theRecord);
+}
 
-module.exports = authRouter;
+async function handleCreate(req, res) {
+  let obj = req.body;
+  let newRecord = await req.model.create(obj);
+  res.status(201).json(newRecord);
+}
+
+async function handleUpdate(req, res) {
+  const id = req.params.id;
+  const obj = req.body;
+  let updatedRecord = await req.model.update(id, obj);
+  res.status(200).json(updatedRecord);
+}
+
+async function handleDelete(req, res) {
+  let id = req.params.id;
+  let deletedRecord = await req.model.delete(id);
+  res.status(200).json(deletedRecord);
+}
+
+module.exports = router;
