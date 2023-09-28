@@ -3,7 +3,7 @@
 const express = require('express');
 const authRouter = express.Router();
 
-const { users } = require('../../src/auth/models');
+const { users } = require('../models');
 const basicAuth = require('../../src/auth/middleware/basic.js');
 const bearerAuth = require('../../src/auth/middleware/bearer.js');
 const permissions = require('../../src/auth/middleware/acl.js');
@@ -16,6 +16,7 @@ authRouter.post('/signup', async (req, res, next) => {
       token: userRecord.token,
     };
     res.status(201).json(output);
+    console.log(output);
   } catch (e) {
     next(e.message);
   }
