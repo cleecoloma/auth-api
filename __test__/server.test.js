@@ -1,36 +1,34 @@
 'use strict';
 
+const { db } = require('../src/models');
 const supertest = require('supertest');
-const server = require('../src/server.js');
-const { sequelize } = require('../src/auth/models');
-const request = supertest(server.app);
+const server = require('../src/server.js').server;
 
-// don't rely on the signup test to work, in order to pass the sign in test
-// beforeAll(); // sync db here
-// beforeEach(); // create any records required for tests to pass.
-// afterEach(); // drop tables / delete records for records that get created between tests
-// afterAll(); //drop the tables in the DB
+const request = supertest(server);
 
 beforeAll(async () => {
-  await sequelize.sync();
+  await db.sync();
 });
 
 afterAll(async () => {
-  await sequelize.drop();
+  await db.drop();
 });
 
-xdescribe(' Testing our auth server', () => {
+describe(' Testing our auth server', () => {
   test('Will this return a 404 error - bad path', async () => {
-    let response = await request.get('/notAnEndpoint');
+    let response = await request.get('/api/notAnEndpoint');
 
     expect(response.status).toEqual(404);
-    expect(response.body.message).toEqual('Error 404 - Incorrect Path');
+    expect(response.body.message).toEqual(
+      'Sorry, we could not find what you were looking for'
+    );
   });
 
   test('Will this return a 404 error - bad method ', async () => {
-    let response = await request.patch('/signin');
+    let response = await request.patch('/api/auth/signin');
 
     expect(response.status).toEqual(404);
-    expect(response.body.message).toEqual('Error 404 - Incorrect Method');
+    expect(response.body.message).toEqual(
+      'Sorry, we could not find what you were looking for');
   });
 });
