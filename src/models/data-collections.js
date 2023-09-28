@@ -9,26 +9,48 @@ class DataCollection {
     this.model = model;
   }
 
-  get(id) {
-    if (id) {
-      return this.model.findOne({ where: { id } });
-    } else {
-      return this.model.findAll({});
+  async get(id) {
+    try {
+      if (id) {
+        return this.model.findOne({ where: { id } });
+      } else {
+        return this.model.findAll({});
+      }
+    } catch (err) {
+      console.log('SOMETHING IS WRONG WHEN READING ' + this.model);
+      console.error(err);
     }
   }
 
-  create(record) {
-    return this.model.create(record);
+  async create(record) {
+    try {
+      return this.model.create(record);
+    } catch (err) {
+      console.log('SOMETHING WENT WRONG WHEN CREATING', this.model);
+      console.error(err);
+    }
   }
 
-  update(id, data) {
-    return this.model
-      .findOne({ where: { id } })
-      .then((record) => record.update(data));
+  async update(id, data) {
+    try {
+      let record = this.model.findOne({ where: { id } });
+      await record.update(data);
+      return record;
+    } catch (err) {
+      console.log('SOMETHING WENT WRONG WHEN UPDATING', this.model);
+      console.error(err);
+    }
   }
 
-  delete(id) {
-    return this.model.destroy({ where: { id } });
+  async delete(id) {
+    try {
+      let results = await this.model.destroy({ where: { id } });
+      console.log('RESULTS FROM COLLECTION', results);
+      return 'deleted';
+    } catch (err) {
+      console.log('SOMETHING WENT WRONG WHEN DELETING:', this.model);
+      console.error(err);
+    }
   }
 }
 
