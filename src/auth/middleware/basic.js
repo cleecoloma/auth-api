@@ -1,7 +1,7 @@
 'use strict';
 
 const base64 = require('base-64');
-const { users } = require('../../models');
+const { users } = require('../models');
 
 module.exports = async (req, res, next) => {
   if (!req.headers.authorization) {
