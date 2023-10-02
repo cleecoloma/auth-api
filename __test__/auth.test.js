@@ -158,22 +158,25 @@ describe('API Authenticated Endpoints', () => {
   });
 
 
-  xdescribe('GET /api/v2/clothes', () => {
+  describe('GET /api/v2/clothes', () => {
     it('returns a list of clothes items', async () => {
-      const response = await mockRequest.get('/api/v2/clothes').expect(200);
-
+      const response = await mockRequest
+        .get('/api/v2/clothes')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
       // Assuming your response contains an array of items
       expect(Array.isArray(response.body)).toBe(true);
     });
   });
 
-  xdescribe('GET /api/v2/clothes/ID', () => {
+  describe('GET /api/v2/clothes/ID', () => {
     it('returns a single item by ID', async () => {
       // Assuming you have an existing item ID
-      const itemId = 1;
+      const itemId = 2;
 
       const response = await mockRequest
         .get(`/api/v2/clothes/${itemId}`)
+        .set('Authorization', `Bearer ${userToken}`)
         .expect(200);
 
       // Assuming your response contains the item with the specified ID
@@ -181,13 +184,14 @@ describe('API Authenticated Endpoints', () => {
     });
   });
 
-  xdescribe('PUT /api/v2/clothes/ID', () => {
+  describe('PUT /api/v2/clothes/ID', () => {
     it('returns a single, updated item by ID', async () => {
       // Assuming you have an existing item ID
-      const itemId = 1;
+      const itemId = 2;
 
       const response = await mockRequest
         .put(`/api/v2/clothes/${itemId}`)
+        .set('Authorization', `Bearer ${userToken}`)
         .send({
           name: 'pants',
           color: 'blue',
@@ -202,17 +206,21 @@ describe('API Authenticated Endpoints', () => {
     });
   });
 
-  xdescribe('DELETE /api/v2/clothes/ID', () => {
+  describe('DELETE /api/v2/clothes/ID', () => {
     it('returns an empty object and subsequent GET should result in nothing found', async () => {
       // Assuming you have an existing item ID
-      const itemId = 1;
+      const itemId = 2;
 
       // Delete the item
-      await mockRequest.delete(`/api/v2/clothes/${itemId}`).expect(200);
+      await mockRequest
+        .delete(`/api/v2/clothes/${itemId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
 
       // Attempt to get the deleted item
       const getResponse = await mockRequest
         .get(`/api/v2/clothes/${itemId}`)
+        .set('Authorization', `Bearer ${userToken}`)
         .expect(200);
 
       // Check if the response body is null
