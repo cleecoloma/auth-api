@@ -34,7 +34,7 @@ Authenticated route request:
 ```text
 method: GET, POST, PUT, DELETE
 modelL: food or clothes
-route: /api/v1/:model/:id
+route: /api/v2/:model/:id
 ```
 
 ## UML Diagram
@@ -42,6 +42,7 @@ route: /api/v1/:model/:id
 
 ## PR link
 [PR link Class 08](https://github.com/cleecoloma/auth-api/pull/1)
+[PR link Class 08](https://github.com/cleecoloma/auth-api/pull/2)
 
 ## Contributors
 > Chester Lee Coloma
