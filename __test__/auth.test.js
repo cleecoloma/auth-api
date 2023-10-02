@@ -20,10 +20,21 @@ let userData = {
 
 let userToken = null;
 
+let sampleObject = {
+  name: 'shirt',
+  color: 'yellow',
+  size: 'small',
+};
+
 beforeEach(() => {
   // Reset user data before each test
   userData = {
     testUser: { username: 'test_user', password: 'password', role: 'admin' },
+  };
+  sampleObject = {
+    name: 'shirt',
+    color: 'yellow',
+    size: 'small',
   };
 });
 
@@ -56,20 +67,6 @@ describe('Auth Router', () => {
 });
 
 describe('API Unauthenticated Endpoints', () => {
-  let sampleObject = {
-    name: 'shirt',
-    color: 'yellow',
-    size: 'small',
-  };
-
-  beforeEach(() => {
-    // Reset sampleObject before each test
-    sampleObject = {
-      name: 'shirt',
-      color: 'yellow',
-      size: 'small',
-    };
-  });
 
   it('POST /api/v1/clothes - adds an item to the DB and returns an object with the added item', async () => {
     const response = await mockRequest
@@ -137,94 +134,78 @@ describe('API Unauthenticated Endpoints', () => {
 });
 
 describe('API Authenticated Endpoints', () => {
-  describe('POST /api/v2/clothes', () => {
-    let sampleObject = {
-      name: 'shirt',
-      color: 'yellow',
-      size: 'small',
-    };
+  it('POST /api/v2/clothes - adds an item to the DB and returns an object with the added item', async () => {
+    const response = await mockRequest
+      .post('/api/v2/clothes')
+      .send(sampleObject)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(201);
 
-    it('adds an item to the DB and returns an object with the added item', async () => {
-      const response = await mockRequest
-        .post('/api/v2/clothes')
-        .send(sampleObject)
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(201);
-      // console.log(userToken);
-      // console.log(response.body);
-      // Assuming your response contains the newly created object
-      expect(response.body).toEqual(expect.objectContaining(sampleObject));
-    });
+    // Assuming your response contains the newly created object
+    expect(response.body).toEqual(expect.objectContaining(sampleObject));
   });
 
+  it('GET /api/v2/clothes - returns a list of clothes items', async () => {
+    const response = await mockRequest
+      .get('/api/v2/clothes')
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200);
 
-  describe('GET /api/v2/clothes', () => {
-    it('returns a list of clothes items', async () => {
-      const response = await mockRequest
-        .get('/api/v2/clothes')
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(200);
-      // Assuming your response contains an array of items
-      expect(Array.isArray(response.body)).toBe(true);
-    });
+    // Assuming your response contains an array of items
+    expect(Array.isArray(response.body)).toBe(true);
   });
 
-  describe('GET /api/v2/clothes/ID', () => {
-    it('returns a single item by ID', async () => {
-      // Assuming you have an existing item ID
-      const itemId = 2;
+  it('GET /api/v2/clothes/ID - returns a single item by ID', async () => {
+    // Assuming you have an existing item ID
+    const itemId = 2;
 
-      const response = await mockRequest
-        .get(`/api/v2/clothes/${itemId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(200);
+    const response = await mockRequest
+      .get(`/api/v2/clothes/${itemId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200);
 
-      // Assuming your response contains the item with the specified ID
-      expect(response.body).toEqual(expect.objectContaining({ id: itemId }));
-    });
+    // Assuming your response contains the item with the specified ID
+    expect(response.body).toEqual(expect.objectContaining({ id: itemId }));
   });
 
-  describe('PUT /api/v2/clothes/ID', () => {
-    it('returns a single, updated item by ID', async () => {
-      // Assuming you have an existing item ID
-      const itemId = 2;
+  it('PUT /api/v2/clothes/ID - returns a single, updated item by ID', async () => {
+    // Assuming you have an existing item ID
+    const itemId = 2;
 
-      const response = await mockRequest
-        .put(`/api/v2/clothes/${itemId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .send({
-          name: 'pants',
-          color: 'blue',
-          size: 'medium',
-        })
-        .expect(200);
+    const response = await mockRequest
+      .put(`/api/v2/clothes/${itemId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({
+        name: 'pants',
+        color: 'blue',
+        size: 'medium',
+      })
+      .expect(200);
 
-      // Assuming your response contains the updated item
-      expect(response.body).toEqual(
-        expect.objectContaining({ id: itemId, color: 'blue' })
-      );
-    });
+    // Assuming your response contains the updated item
+    expect(response.body).toEqual(
+      expect.objectContaining({ id: itemId, color: 'blue' })
+    );
   });
 
-  describe('DELETE /api/v2/clothes/ID', () => {
-    it('returns an empty object and subsequent GET should result in nothing found', async () => {
-      // Assuming you have an existing item ID
-      const itemId = 2;
+  it('DELETE /api/v2/clothes/ID - returns an empty object and subsequent GET should result in nothing found', async () => {
+    // Assuming you have an existing item ID
+    const itemId = 2;
 
-      // Delete the item
-      await mockRequest
-        .delete(`/api/v2/clothes/${itemId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(200);
+    // Delete the item
+    await mockRequest
+      .delete(`/api/v2/clothes/${itemId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200);
 
-      // Attempt to get the deleted item
-      const getResponse = await mockRequest
-        .get(`/api/v2/clothes/${itemId}`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(200);
+    // Attempt to get the deleted item
+    const getResponse = await mockRequest
+      .get(`/api/v2/clothes/${itemId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200);
 
-      // Check if the response body is null
-      expect(getResponse.body).toBeNull();
-    });
+    // Check if the response body is null
+    expect(getResponse.body).toBeNull();
   });
 });
+
